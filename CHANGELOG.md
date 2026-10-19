@@ -7,9 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 For changes prior to v1.0.0, see the [legacy releases](https://legacy.inertiajs.com/releases).
 
-## [Unreleased](https://github.com/inertiajs/inertia/compare/v3.8.0...main)
+## [Unreleased](https://github.com/inertiajs/inertia/compare/v3.9.1...main)
 
 - Nothing yet
+
+## [v3.9.1](https://github.com/inertiajs/inertia/compare/v3.8.0...v3.9.1) - 2026-10-19
+
+Tracks [Inertia v3.9.1](https://github.com/inertiajs/inertia/releases/tag/v3.9.1). Requires `@inertiajs/core@^3.9.1`.
+
+### Security
+
+- **Encrypted history**: every entry is now encrypted with its own IV, so two entries can no longer be combined to recover one from the other. Entries written by earlier versions are fetched from the server again.
+- **XSRF**: the `X-XSRF-TOKEN` header is only sent to same-origin URLs, for both `Link`/router visits and `useHttp`.
+
+### From Inertia core
+
+- `usePoll` accepts the new `background` option (`'throttle'`, `'pause'` or `'continue'`) to control polling in background tabs. `keepAlive` is deprecated in favour of `background: 'continue'`.
+- The `inertia:navigate` event detail includes `type` (`'initial'`, `'visit'` or `'history'`).
+- `InfiniteScroll` discards requests that outlive the component, and no longer errors when it unmounts right after its items change.
+- `useRemember` no longer restores an earlier page's state on new visits.
+- Clearing history also flushes the prefetch cache, a `QuotaExceededError` in `history.replaceState` is logged instead of thrown, and a history restore now supersedes a page update that is still resolving.
+
+See the upstream release notes for [v3.9.0](https://github.com/inertiajs/inertia/releases/tag/v3.9.0) and [v3.9.1](https://github.com/inertiajs/inertia/releases/tag/v3.9.1).
 
 ## [v3.8.0](https://github.com/inertiajs/inertia/compare/v3.7.1...v3.8.0) - 2026-10-04
 
