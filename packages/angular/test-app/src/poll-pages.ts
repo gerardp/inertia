@@ -56,14 +56,20 @@ class PollOverlap {
   readonly page = usePage<{ mode?: string }>()
   readonly params = new URLSearchParams(window.location.search)
   readonly initialMode = this.page().props.mode ?? 'none'
+  readonly background = this.params.get('background')
   readonly options: PollOptions = {
     ...(this.isMode(this.initialMode) ? { mode: this.initialMode } : {}),
     ...(this.params.get('keepAlive') === '1' ? { keepAlive: true } : {}),
+    ...(this.isBackground(this.background) ? { background: this.background } : {}),
   }
   readonly poll = usePoll(Number(this.params.get('interval') ?? 200), {}, this.options)
 
   private isMode(mode: string): mode is NonNullable<PollOptions['mode']> {
     return mode === 'overlap' || mode === 'cancel' || mode === 'rest'
+  }
+
+  private isBackground(background: string | null): background is NonNullable<PollOptions['background']> {
+    return background === 'throttle' || background === 'pause' || background === 'continue'
   }
 }
 

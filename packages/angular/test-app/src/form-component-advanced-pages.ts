@@ -549,7 +549,20 @@ class UnmountCancelPage {
   }
 }
 
+@Component({
+  selector: 'test-form-submit-on-enter',
+  imports: [Form],
+  template: `
+    <h1>Form Submit On Enter</h1>
+    <form inertiaForm #form="inertiaForm" action="/dump/post" method="post">
+      <textarea name="message" id="message" (keydown.enter)="$event.preventDefault(); form.submit()"></textarea>
+    </form>
+  `,
+})
+class SubmitOnEnterPage {}
+
 export const formComponentAdvancedPages: Record<string, ResolvedComponent> = {
+  'FormComponent/SubmitOnEnter': SubmitOnEnterPage,
   'FormComponent/UnmountCancel': UnmountCancelPage,
   'FormComponent/Events': EventsPage,
   'FormComponent/Options': OptionsPage,

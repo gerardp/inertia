@@ -7,6 +7,7 @@ import {
   computed,
   inject,
   input,
+  linkedSignal,
   signal,
 } from '@angular/core'
 import {
@@ -387,6 +388,8 @@ class OptionalWhenVisiblePage {
   selector: 'test-infinite-navigate-away',
   imports: [InfiniteScroll, Link],
   template: `<a inertiaLink href="/article" id="leave">Leave to /article</a>
+    <a inertiaLink href="/infinite-scroll/navigate-away/slow-article" id="leave-slowly">Leave slowly to /article</a>
+    <a inertiaLink href="/infinite-scroll/navigate-away?order=desc" id="sort-slowly">Slowly sort descending</a>
     <div inertiaInfiniteScroll="users" #scroll="inertiaInfiniteScroll" style="display:grid;gap:20px">
       ${userCards}
       @if (scroll.loading()) {
@@ -471,7 +474,46 @@ class UnmountRacePage {
   }
 }
 
+@Component({
+  selector: 'test-infinite-unmount-after-mutation',
+  imports: [InfiniteScroll],
+  template: `
+    <button type="button" (click)="addUserAndUnmount()">Add User and Unmount</button>
+    <button type="button" (click)="addUserAndVisitHome()">Add User and Visit Home</button>
+    <p id="status">Mounted: {{ show() }}</p>
+    @if (show()) {
+      <div inertiaInfiniteScroll="users" style="display:grid;gap:20px">
+        @for (user of items(); track user.id) {
+          <div [attr.data-user-id]="user.id" style="height:15vh;border:1px solid #ccc">{{ user.name }}</div>
+        }
+      </div>
+    }
+  `,
+})
+class UnmountAfterMutationPage {
+  readonly users = input<Users>({ data: [] })
+  readonly show = signal(true)
+  readonly items = linkedSignal(() => [...this.users().data])
+  readonly #appRef = inject(ApplicationRef)
+
+  addUserAndUnmount(): void {
+    this.#addUser()
+    this.show.set(false)
+  }
+
+  addUserAndVisitHome(): void {
+    this.#addUser()
+    router.visit('/')
+  }
+
+  #addUser(): void {
+    this.items.update((items) => [...items, { id: 1000, name: 'Added User' }])
+    this.#appRef.tick()
+  }
+}
+
 export const infiniteScrollAdvancedPages: Record<string, ResolvedComponent> = {
+  'InfiniteScroll/UnmountAfterMutation': UnmountAfterMutationPage,
   'InfiniteScroll/FilteringManual': FilteringManualPage,
   'InfiniteScroll/RememberState': RememberStatePage,
   'InfiniteScroll/ManualReverse': ManualReversePage,

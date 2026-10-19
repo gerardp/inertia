@@ -12,7 +12,7 @@ pnpm add inertia-angular @angular/common @angular/core @angular/platform-browser
 
 `@inertiajs/core` is installed automatically. Angular `>=22.1 <23` is supported by this release.
 
-The version number tracks Inertia itself, so `inertia-angular@3.8.0` targets `@inertiajs/core@3.8.x`. A patch release of this package can run ahead of Inertia's own when it only fixes the Angular side.
+The version number tracks Inertia itself, so `inertia-angular@3.9.1` targets `@inertiajs/core@3.9.x`. A patch release of this package can run ahead of Inertia's own when it only fixes the Angular side.
 
 Do not install Angular Router: Inertia owns navigation, URL history, scroll restoration, cached pages, and visits.
 

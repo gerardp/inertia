@@ -766,7 +766,21 @@ class UseHttpNoContent {
   }
 }
 
+@Component({
+  selector: 'test-xsrf-cross-origin',
+  imports: [Link],
+  template: `
+    <button inertiaLink method="post" href="/dump/post">Same-origin Link</button>
+    <button inertiaLink method="post" href="https://external.example/upload">Cross-origin Link</button>
+    <button type="button" (click)="upload.put('https://external.example/upload')">Cross-origin HTTP</button>
+  `,
+})
+class XsrfCrossOrigin {
+  readonly upload = useHttp({})
+}
+
 export const useHttpPages: Record<string, ResolvedComponent> = {
+  'Xsrf/CrossOrigin': XsrfCrossOrigin,
   'UseHttp/Index': UseHttpIndex,
   'UseHttp/Methods': UseHttpMethods,
   'UseHttp/Transform': UseHttpTransform,

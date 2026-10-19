@@ -46,6 +46,7 @@ describe('InfiniteScroll', () => {
     fetchNext: vi.fn(),
     fetchPrevious: vi.fn(),
     removeEventListener: vi.fn(),
+    flush: vi.fn(),
   }
   const elementManager: UseInfiniteScrollProps['elementManager'] = {
     setupObservers: vi.fn(),

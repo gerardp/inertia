@@ -373,6 +373,8 @@ test('will pull from server if history version is different than current version
 test('it keeps the restored page when the back button is pressed while the next page is still loading', async ({
   page,
 }) => {
+  test.skip(process.env.PACKAGE === 'angular', 'Relies on the Vite plugin auto entry, which Angular does not use')
+
   await page.goto('/auto/props')
   await expect(page.getByTestId('props-title')).toBeVisible()
 

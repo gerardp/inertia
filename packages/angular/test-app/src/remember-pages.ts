@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core'
+import { Component, effect, signal } from '@angular/core'
 import { Link, router, useForm, useRemember, type ResolvedComponent } from 'inertia-angular'
 
 type RememberData = { name: string; remember: boolean }
@@ -280,7 +280,105 @@ class RememberRouter {
   }
 }
 
+@Component({
+  selector: 'test-remember-tabs-nav',
+  imports: [Link],
+  template: `
+    <nav>
+      <a inertiaLink href="/remember/tabs/users">Users</a>
+      <a inertiaLink href="/remember/tabs/teams">Teams</a>
+      <ng-content />
+    </nav>
+  `,
+})
+class RememberTabsNav {}
+
+@Component({
+  selector: 'test-remember-notes',
+  template: `<label>Notes <input type="text" [value]="notes().text" (input)="setText($any($event.target).value)" /></label>`,
+})
+class RememberNotes {
+  readonly notes = useRemember({ text: '' }, 'Users/Notes')
+
+  setText(text: string): void {
+    this.notes.set({ text })
+  }
+}
+
+@Component({
+  selector: 'test-remember-tabs-users',
+  imports: [RememberTabsNav, RememberNotes],
+  template: `
+    <test-remember-tabs-nav><a href="/non-inertia">Navigate off-site</a></test-remember-tabs-nav>
+    <h1>Users</h1>
+    <p id="selected">{{ selection().ids.length }} selected</p>
+    @for (user of users; track user.id) {
+      <label>
+        <input
+          type="checkbox"
+          [checked]="selection().ids.includes(user.id)"
+          (change)="toggle(user.id, $any($event.target).checked)"
+        />
+        {{ user.name }}
+      </label>
+    }
+    <button type="button" (click)="showNotes.set(!showNotes())">Toggle notes</button>
+    @if (showNotes()) {
+      <test-remember-notes />
+    }
+  `,
+})
+class RememberTabsUsers {
+  readonly users = [
+    { id: 1, name: 'User One' },
+    { id: 2, name: 'User Two' },
+    { id: 3, name: 'User Three' },
+  ]
+  readonly selection = useRemember({ ids: [] as number[] }, 'Users/Selected')
+  readonly showNotes = signal(false)
+
+  toggle(id: number, checked: boolean): void {
+    this.selection.update(({ ids }) => ({ ids: checked ? [...ids, id] : ids.filter((other) => other !== id) }))
+  }
+}
+
+@Component({
+  selector: 'test-remember-tabs-teams',
+  imports: [RememberTabsNav],
+  template: '<test-remember-tabs-nav /><h1>Teams</h1>',
+})
+class RememberTabsTeams {}
+
+@Component({
+  selector: 'test-remember-scroll-region',
+  imports: [Link],
+  template: `
+    <a inertiaLink href="/dump/get">Navigate away</a>
+    <p>First visible row: {{ firstVisibleRow() }}</p>
+    <div id="rows" scroll-region style="height: 200px; overflow-y: auto" (scroll)="onScroll($event)">
+      @for (row of rows; track row) {
+        <div style="height: 40px">{{ row }}</div>
+      }
+    </div>
+  `,
+})
+class RememberScrollRegion {
+  readonly rows = Array.from({ length: 100 }, (_, index) => `Row ${index + 1}`)
+  readonly firstVisibleRow = signal(0)
+
+  constructor() {
+    effect(() => router.remember(this.firstVisibleRow(), 'firstVisibleRow'))
+  }
+
+  onScroll(event: Event): void {
+    this.firstVisibleRow.set(Math.floor((event.target as HTMLElement).scrollTop / 40))
+  }
+}
+
 export const rememberPages: Record<string, ResolvedComponent> = {
+  'Remember/Tabs/Users': RememberTabsUsers,
+  'Remember/Tabs/Teams': RememberTabsTeams,
+  'Remember/ScrollRegion': RememberScrollRegion,
   'Remember/Default': RememberDefault,
   'Remember/Object': RememberObject,
   'Remember/MultipleComponents': RememberMultiple,
